@@ -83,25 +83,43 @@ module sliding_window_3x3 #(
         end
     end
 
+    / =========================================================================
+    // 3. LÓGICA DE CONTROLE DE VALIDADE E BORDAS
     // =========================================================================
-    // 3. LÓGICA DE CONTROLE DE VALIDADE (BORDA DA IMAGEM)
-    // =========================================================================
-    // A convolução só deve começar quando tivermos pelo menos 2 linhas inteiras 
-    // e mais 3 pixels injetados no circuito (para preencher a matriz 3x3).
     
-    assign start_convolution = (pixel_count >= (WIDTH * 2 + 3));
+    // Além do contador global, precisamos saber em qual coluna estamos
+    reg [31:0] pixel_count;
+    reg [15:0] col_count; // Contador de 0 até WIDTH-1
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             pixel_count <= 0;
+            col_count   <= 0;
             win_vld     <= 0;
         end else if (pixel_vld) begin
-            if (pixel_count < (WIDTH * 3)) // Evita estouro do contador no teste
+            
+            // 1. Atualiza o contador de preenchimento do pipeline
+            if (pixel_count < (WIDTH * 3))
                 pixel_count <= pixel_count + 1;
                 
-            win_vld <= start_convolution;
+            // 2. Atualiza o contador de coluna (Wrap-around horizontal)
+            if (col_count == (WIDTH - 1))
+                col_count <= 0;
+            else
+                col_count <= col_count + 1;
+
+            // 3. Condição de Validade Estrita:
+            // - O pipeline inicial de 2 linhas deve estar cheio (pixel_count >= 2*WIDTH + 2)
+            // - A janela não pode estar cruzando de uma linha para a outra (col_count >= 2)
+            // Nota: O '2' avalia o estado atual instantes ANTES do 3º pixel ser registrado.
+            if ((pixel_count >= (WIDTH * 2 + 2)) && (col_count >= 2)) begin
+                win_vld <= 1'b1;
+            end else begin
+                win_vld <= 1'b0; // Força zero nas bordas ou se o pipeline estiver vazio
+            end
+            
         end else begin
-            win_vld <= 0; // Se o pixel de entrada parar, a saída também pausa
+            win_vld <= 1'b0; // Pausa se a entrada de pixels parar
         end
     end
 
