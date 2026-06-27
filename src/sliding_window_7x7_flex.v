@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+//`timescale 1ns / 1ps
 
 module sliding_window_7x7_flex #(
     parameter WIDTH = 512,        // Largura da imagem em pixels

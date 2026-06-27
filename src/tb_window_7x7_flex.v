@@ -1,5 +1,5 @@
-`timescale 1ns / 1ps
-
+//`timescale 1ns / 1ps
+// xrun +
 module tb_window_7x7_flex;
 
     // Parâmetros da imagem (512 colunas x 515 linhas)
