@@ -1,0 +1,5 @@
+run_sim.sh
+/src/.simvision
+/src/waves_flex.shm
+/src/waves.shm
+/src/xcelium.d
