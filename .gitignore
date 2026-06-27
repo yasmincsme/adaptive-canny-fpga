@@ -11,3 +11,6 @@ xrun.key
 xrun.log
 sim_export.history
 sim_export.log
+.symbolnamelist
+.gitignore
+.symbolportinfomap
