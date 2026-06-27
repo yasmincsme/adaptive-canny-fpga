@@ -74,13 +74,13 @@ module gradient_datapath (
 
     // Extração dos valores absolutos
     abs_value #(.WIDTH(11)) inst_abs_fx (
-        .numero_in(fx),
-        .modulo_out(abs_fx)
+        .num_in(fx),
+        .abs_num_out(abs_fx)
     );
 
     abs_value #(.WIDTH(11)) inst_abs_fy (
-        .numero_in(fy),
-        .modulo_out(abs_fy)
+        .num_in(fy),
+        .abs_num_out(abs_fy)
     );
     
     // Soma dos eixos ortogonais (|fx| + |fy|)
@@ -89,7 +89,7 @@ module gradient_datapath (
     // Aproximação da multiplicação por 1/sqrt(2) (Rede combinacional Shift-Add)
     mag_approx #(.WIDTH(12)) inst_mag_approx (
         .sum_in(sum_abs),
-        .diag_out(diag_proj)
+        .mag_out(diag_proj)
     );
 
     // =========================================================================
