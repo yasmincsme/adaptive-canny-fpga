@@ -25,6 +25,7 @@ module sliding_window_3x3 #(
 
     // Contador de pixels/linhas para saber quando a matriz foi totalmente preenchida
     reg [31:0] pixel_count;
+    reg [15:0] col_count; // Contador de 0 até WIDTH-1
     wire start_convolution;
 
     // =========================================================================
@@ -83,13 +84,11 @@ module sliding_window_3x3 #(
         end
     end
 
-    / =========================================================================
+    // =========================================================================
     // 3. LÓGICA DE CONTROLE DE VALIDADE E BORDAS
     // =========================================================================
+
     
-    // Além do contador global, precisamos saber em qual coluna estamos
-    reg [31:0] pixel_count;
-    reg [15:0] col_count; // Contador de 0 até WIDTH-1
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
