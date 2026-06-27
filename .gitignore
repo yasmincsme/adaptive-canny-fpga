@@ -3,3 +3,6 @@ run_sim.sh
 /src/waves_flex.shm
 /src/waves.shm
 /src/xcelium.d
+src/sim_export.history
+src/sim_export.log
+src/xrun.key
