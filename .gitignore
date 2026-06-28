@@ -1,0 +1,16 @@
+run_sim.sh
+/.simvision
+/waves_flex.shm
+/waves.shm
+/xcelium.d
+/sim_export.history
+/sim_export.log
+/xrun.key
+xrun.history
+xrun.key
+xrun.log
+sim_export.history
+sim_export.log
+.symbolnamelist
+.gitignore
+.symbolportinfomap
