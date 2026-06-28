@@ -1,3 +1,6 @@
+/venv
+onda_wallace.vcd
+sim_wallace.out
 run_sim.sh
 /.simvision
 /waves_flex.shm
