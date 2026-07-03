@@ -18,3 +18,7 @@ sim_export.log
 .gitignore
 .symbolportinfomap
 simvision24664.diag
+waves_window.shm/waves_window.trn
+.gitignore
+waves_window.shm/waves_window.dsn
+.gitignore

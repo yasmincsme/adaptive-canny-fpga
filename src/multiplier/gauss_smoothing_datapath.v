@@ -27,7 +27,7 @@ module gauss_smoothing_datapath (
     wire        limit_reached;
     
     reg  [5:0]  contador;
-    reg  [5:0]  max_pixels;
+    //reg  [5:0]  max_pixels;
     
     wire [15:0] novo_produto;
     wire [15:0] proximo_sum, proximo_carry;
@@ -135,7 +135,7 @@ module gauss_smoothing_datapath (
     // 7. SOMA FINAL E REGISTRADOR DE SAÍDA (gaussian_reg)
     // ========================================================================
     
-    cla_16bit final_adder (
+    cla_adder final_adder (
         .a(reg_sum),
         .b(reg_carry),
         .sum(resultado_final_16b)
