@@ -14,6 +14,7 @@ src/multiplier/gauss_uc.v
 src/multiplier/half_adder.v
 src/multiplier/tb_wallace.v
 src/multiplier/wallace_8x8_unsigned.v
+src/multiplier/tb_image_filter.v
 src/window/line_buffer.v
 src/window/sliding_window_3x3.v
 src/window/sliding_window_7x7_flex.v

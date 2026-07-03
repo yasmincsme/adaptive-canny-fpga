@@ -36,7 +36,7 @@ module tb_image_filter;
     ) line_buffer_inst (
         .clk(clk),
         .rst_n(rst_n),
-        //.kernel_size(kernel_sel),
+        .kernel_size(kernel_sel),
         .pixel_vld(pixel_vld),
         .pixel_in(pixel_in),
         .win_vld(win_vld),
@@ -47,7 +47,7 @@ module tb_image_filter;
         .clk(clk),
         .rst_n(rst_n),
         .start(start),
-        .kernel_sel(kernel_sel),
+        //.kernel_sel(kernel_sel),
         .done(done),
         .window_flat(window_data),
         .peso_atual(peso_atual),
