@@ -46,7 +46,7 @@ module tb_line_buffer;
 
         // 2. Carrega o arquivo hexadecimal gerado pelo Python
         $display("[TB] Carregando o arquivo de imagem...");
-        $readmemh("imagem_cinza.txt", imagem_memoria);
+        $readmemh("src/window/imagem_cinza.txt", imagem_memoria);
         $display("[TB] Imagem carregada com sucesso. Total de pixels: %d", TOTAL_PIXELS);
 
         // 3. Aplica o Reset do sistema

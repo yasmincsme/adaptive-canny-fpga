@@ -54,7 +54,7 @@ module tb_window_3x3;
 
         // 2. Carrega a imagem gerada pelo script Python
         $display("[TB_WINDOW] Carregando o arquivo 'imagem_cinza.txt'...");
-        $readmemh("imagem_cinza.txt", imagem_memoria);
+        $readmemh("src/window/imagem_cinza.txt", imagem_memoria);
         $display("[TB_WINDOW] Imagem carregada. Total de pixels: %d", TOTAL_PIXELS);
 
         // 3. Aplica e libera o Reset do sistema

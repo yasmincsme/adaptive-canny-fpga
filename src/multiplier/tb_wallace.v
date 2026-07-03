@@ -23,8 +23,8 @@ module tb_wallace;
 
     initial begin
         // Diretivas para gerar o ficheiro de ondas para o GTKWave
-        $dumpfile("onda_wallace.vcd");
-        $dumpvars(0, tb_wallace);
+        //$dumpfile("onda_wallace.vcd");
+        //$dumpvars(0, tb_wallace);
 
         $display("==================================================");
         $display("A Iniciar Teste: Tabuada de B (0 a 9) x A (0 a 255)");

@@ -72,7 +72,7 @@ module tb_window_7x7_flex;
 
         // 2. Carrega a imagem hexadecimal
         $display("[TB_FLEX] Carregando o arquivo 'imagem_cinza.txt'...");
-        $readmemh("imagem_cinza.txt", imagem_memoria);
+        $readmemh("src/window/imagem_cinza.txt", imagem_memoria);
         $display("[TB_FLEX] Imagem carregada com sucesso.");
 
         // 3. Aplica e libera o Reset do sistema

@@ -1,29 +1,16 @@
 module mag_approx #(
-    parameter WIDTH = 12 // Largura de dados (ajustável para o processador)
+    parameter WIDTH = 12 // Largura de dados ajustada para o datapath
 )(
-    input wire clk,
-    input wire reset,
-    input wire [(WIDTH-1):0] sum_in,  // Entrada: |Mx| + |My|
-    output reg [(WIDTH-1):0] mag_out  // Saída para o comparador
+    input  wire [(WIDTH-1):0] sum_in,   // Entrada: |Mx| + |My|
+    output wire [(WIDTH-1):0] diag_out  // Saída combinacional para o comparador
 );
 
-    // Fio intermediário para o resultado combinacional
-    wire [(WIDTH-1):0] shift_add_result;
-
     // Árvore combinacional explícita de Shift-Add para * 0.7071
-    assign shift_add_result = (sum_in >> 1) + 
-                              (sum_in >> 3) + 
-                              (sum_in >> 4) + 
-                              (sum_in >> 6) + 
-                              (sum_in >> 8);
-
-    // Registrador PIPO (Parallel-In Parallel-Out) do pipeline
-    always @(posedge clk) begin
-        if (reset) begin
-            mag_out <= 0;
-        end else begin
-            mag_out <= shift_add_result; // Escrita e leitura paralelas
-        end
-    end
+    // A palavra-chave 'assign' liga a entrada à saída instantaneamente através das portas lógicas
+    assign diag_out = (sum_in >> 1) + 
+                      (sum_in >> 3) + 
+                      (sum_in >> 4) + 
+                      (sum_in >> 6) + 
+                      (sum_in >> 8);
 
 endmodule

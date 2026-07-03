@@ -90,11 +90,11 @@ module tb_image_filter;
     // 5. MÁQUINA DE ESTADOS DA TESTBENCH (O Handshake Ping-Pong)
     // =========================================================================
     initial begin
-        $dumpfile("onda_imagem.vcd");
-        $dumpvars(0, tb_image_filter);
+        //$dumpfile("onda_imagem.vcd");
+        //$dumpvars(0, tb_image_filter);
 
         // Carrega a imagem do arquivo de texto (você precisa criar este arquivo)
-        $readmemh("imagem_in.hex", imagem_entrada);
+        $readmemh("src/multiplier/imagem_in.hex", imagem_entrada);
         arquivo_saida = $fopen("imagem_out.hex", "w");
 
         // Condições Iniciais

@@ -83,10 +83,8 @@ module gradient_datapath (
 
 
     mag_approx #(.WIDTH(12)) inst_mag_approx (
-        .clk(clk),
-        .reset(reset),
         .sum_in(sum_abs),
-        .mag_out(diag_proj)
+        .diag_out(diag_proj)
     );
 
 
