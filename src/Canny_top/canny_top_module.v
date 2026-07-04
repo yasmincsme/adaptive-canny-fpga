@@ -8,8 +8,10 @@ module canny_top_module #(
     input  wire                 clk,
     input  wire                 rst_n,
     
-    // Interface de Entrada de Vídeo
-    input  wire [DATA_WIDTH-1:0] pixel_in,
+    // Interface de Entrada de Vídeo (RGB — convertido para escala de cinza internamente)
+    input  wire [DATA_WIDTH-1:0] pixel_r_in,
+    input  wire [DATA_WIDTH-1:0] pixel_g_in,
+    input  wire [DATA_WIDTH-1:0] pixel_b_in,
     input  wire                  pixel_vld_in,
     output wire                  ready,
     
@@ -71,11 +73,23 @@ module canny_top_module #(
     wire enable_7x7 = pixel_vld_in && (state == STATE_STREAM);
 
     // =========================================================================
+    // 1.5 CONVERSÃO RGB -> ESCALA DE CINZA
+    // =========================================================================
+    wire [DATA_WIDTH-1:0] pixel_gray;
+
+    rgb_gray_average inst_rgb_gray (
+        .R(pixel_r_in),
+        .G(pixel_g_in),
+        .B(pixel_b_in),
+        .gray_avg(pixel_gray)
+    );
+
+    // =========================================================================
     // 2. ETAPA 1: FILTRO GAUSSIANO (JANELA 7x7)
     // =========================================================================
     wire [(49*DATA_WIDTH)-1:0] window_7x7_flat;
     wire [DATA_WIDTH-1:0]      gauss_pixel_out;
-    
+
     sliding_window_7x7_flex #(
         .WIDTH(IMG_WIDTH),
         .DATA_WIDTH(DATA_WIDTH)
@@ -84,7 +98,7 @@ module canny_top_module #(
         .rst_n(rst_n),
         .kernel_size(2'b10),
         .pixel_vld(enable_7x7),
-        .pixel_in(pixel_in),
+        .pixel_in(pixel_gray),
         .win_vld(win_7x7_vld),
         .window_data(window_7x7_flat)
     );
@@ -206,9 +220,15 @@ module canny_top_module #(
     wire [13:0] nms_w00, nms_w01, nms_w02, nms_w10, nms_w11, nms_w12, nms_w20, nms_w21, nms_w22;
     wire        nms_win_vld;
 
+    // WIDTH = IMG_WIDTH-2: o estágio anterior (janela do Sobel) já descarta 2
+    // amostras por linha real (bordas col_count<2). Se esta janela contasse
+    // "linha" a cada IMG_WIDTH pulsos recebidos, seu período de contagem
+    // ficaria fora de fase com as linhas reais (o stream recebido só tem
+    // IMG_WIDTH-2 pulsos por linha), causando deriva diagonal progressiva na
+    // detecção de bordas de linha em linha.
     sliding_window_3x3 #(
-        .WIDTH(IMG_WIDTH),
-        .DATA_WIDTH(14) 
+        .WIDTH(IMG_WIDTH-2),
+        .DATA_WIDTH(14)
     ) inst_win_nms (
         .clk(clk),
         .rst_n(rst_n),

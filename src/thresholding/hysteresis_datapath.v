@@ -52,8 +52,14 @@ module hysteresis_datapath #(
     // =========================================================================
     // Reutilizamos o Sliding Window, mas agora configurado para apenas 2 bits!
     // Ele cria uma matriz 3x3 das classificações para verificarmos os vizinhos.
+    //
+    // WIDTH = IMG_WIDTH-4: pelo momento em que o stream chega aqui, os dois
+    // estágios anteriores (janela do Sobel e janela do NMS) já descartaram
+    // 2+2=4 amostras por linha real. Sem esse ajuste, o contador de coluna
+    // desta janela ficaria fora de fase com as linhas reais e a detecção de
+    // borda sofreria deriva diagonal progressiva ao longo da imagem.
     sliding_window_3x3 #(
-        .WIDTH(IMG_WIDTH),
+        .WIDTH(IMG_WIDTH-4),
         .DATA_WIDTH(2)       // A MAGIA DA OTIMIZAÇÃO: Apenas 2 bits por píxel!
     ) inst_hysteresis_buffer (
         .clk(clk),

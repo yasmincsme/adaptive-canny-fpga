@@ -1,2 +1,44 @@
-xrun -f filelist.f
-xrun -access +rwc -gui -f filelist.f
+# Como rodar os testes no Cadence (Xcelium/xrun)
+
+## 1. Escolha a testbench a rodar
+Em filelist.f, apenas UMA testbench pode estar descomentada por vez (é o
+top-level da simulação). Por padrão está ativa src/window/tb_window_3x3.v.
+Para testar o pipeline completo do Canny, comente essa linha e descomente:
+  src/Canny_top/tb_canny_top_module.v
+
+## 2. (Opcional) Converta uma imagem real para o formato de entrada
+tb_canny_top_module.v lê a imagem de entrada_canny.hex (pixel RGB de 24 bits
+por linha) e as dimensões de src/Canny_top/image_params.vh. Ambos já vêm
+com um quadrado sintético 32x32 de fábrica -- só rode este passo se quiser
+testar com uma imagem sua:
+
+  python3 scripts/png_to_hex.py caminho/para/imagem.png
+
+Por padrão a imagem é redimensionada para 512x512 (resolução alvo do
+projeto). Use --width/--height para outro tamanho, ou --no_resize para
+manter o tamanho original. A imagem pode ser colorida -- a conversão para
+escala de cinza acontece dentro do datapath (rgb_gray_average.v), o script
+não faz isso.
+
+Atenção: simular em 512x512 é bem mais lento que o quadrado 32x32 de
+fábrica (a arquitetura processa ~1 pixel a cada ~52 ciclos); para uma
+iteração rápida prefira uma imagem pequena (--width/--height menores).
+
+## 3. Rode a simulação
+  xrun -incdir src/Canny_top -f filelist.f
+
+Para abrir o SimVision (GUI de formas de onda):
+  xrun -incdir src/Canny_top -access +rwc -gui -f filelist.f
+
+A flag -incdir src/Canny_top é necessária porque a testbench usa
+`include "image_params.vh"`, que fica nessa pasta.
+
+## 4. Veja o resultado
+A simulação grava saida_canny.hex (um píxel de borda por linha, %02X).
+Para reconstruir como PNG:
+
+  python3 scripts/hex_to_png.py
+
+Gera saida_canny.png (por padrão), lendo as dimensões de saída a partir de
+src/Canny_top/image_params.vh (já ajustadas pela perda de borda do
+pipeline: -6 de largura, -5 de altura).
