@@ -67,7 +67,6 @@ module nms_combinational #(
     // Multiplexador de saída (Máscara): Se passou na condição, mantém o valor original mag11.
     // Se falhou (não é o máximo local), a magnitude é suprimida para zero.
     assign nms_mag_out = (supressao_cond) ? mag11 : {WIDTH{1'b0}};
-
     // =========================================================================
     // 3. PROPAGAÇÃO DO SINAL DE CONTROLE (HANDSHAKE)
     // =========================================================================

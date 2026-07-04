@@ -117,12 +117,17 @@ module tb_hysteresis_datapath;
         #10;
         
         // Envia a imagem inteira, píxel a píxel, fluxo contínuo (Streaming)
-        for (i = 0; i < (WIDTH*HEIGHT); i = i + 1) begin
+        /*for (i = 0; i < (WIDTH*HEIGHT); i = i + 1) begin
             @(negedge clk);
             nms_mag_in = image_in[i];
             nms_vld_in = 1'b1;
+        end*/
+        // No TB, garanta que o loop de envio seja contínuo:
+        for (i = 0; i < (WIDTH*HEIGHT); i = i + 1) begin
+            @(negedge clk);
+            nms_mag_in = image_in[i];
+            nms_vld_in = 1'b1; // NUNCA ZERO durante o envio da imagem
         end
-        
         // Pára o fluxo de dados
         @(negedge clk);
         nms_mag_in = 0;
