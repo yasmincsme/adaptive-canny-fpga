@@ -13,7 +13,6 @@ com um quadrado sintético 32x32 de fábrica -- só rode este passo se quiser
 testar com uma imagem sua:
 
   python3 scripts/png_to_hex.py caminho/para/imagem.png
-  /home/cidigital/Downloads/lena.png
 
 Por padrão a imagem é redimensionada para 512x512 (resolução alvo do
 projeto). Use --width/--height para outro tamanho, ou --no_resize para
@@ -29,111 +28,9 @@ iteração rápida prefira uma imagem pequena (--width/--height menores).
 
   xrun -incdir src/Canny_top -f filelist.f
 
-  [cidigital@localhost adaptive-canny-fpga]$ xrun -incdir src/Canny_top -f filelist.f 
-  TOOL:   xrun    25.03-s010: Started on Jul 04, 2026 at 16:07:11 -03
-  TOOL:   xrun(64)        25.03-s010: Started on Jul 04, 2026 at 16:07:11 -03
-  xrun(64): 25.03-s010: (c) Copyright 1995-2026 Cadence Design Systems, Inc.
-  Recompiling... reason: file './src/Canny_top/canny_top_module.v' is newer than expected.
-          expected: Sat Jul  4 15:01:20 2026
-          actual:   Sat Jul  4 15:57:21 2026
-  file: src/multiplier/gauss_uc.v
-  module gauss_uc (
-                |
-  xmvlog: *W,RECOME (src/multiplier/gauss_uc.v,3|14): recompiling design unit worklib.gauss_uc:v.
-          First compiled from line 3 of src/multiplier/gauss_uc.v.
-                  Caching library 'worklib' ....... Done
-          Elaborating the design hierarchy:
-          Top level design units:
-                  nms_window_buffer
-                  tb_canny_top_module
-          Modules w/wo timescales:
-                  timescale of worklib.wallace_8x8_unsigned:v = 1ns/1ps
-                  timescale of worklib.tb_canny_top_module:v = 1ns/1ps
-                  timescale of worklib.sobel_filter:v = 1ns/1ps
-                  timescale of worklib.sliding_window_fsm:v = 1ns/1ps
-                  timescale of worklib.sliding_window_7x7_flex:v = 1ns/1ps
-                  timescale of worklib.sliding_window_3x3:v = 1ns/1ps
-                  timescale of worklib.rgb_gray_average:v = 1ns/1ps
-                  timescale of worklib.noise_estimator_uc:v = 1ns/1ps
-                  timescale of worklib.noise_estimator:v = 1ns/1ps
-                  timescale of worklib.nms_window_buffer:v = 1ns/1ps
-                  timescale of worklib.nms_combinational:v = 1ns/1ps
-                  timescale of worklib.mag_approx:v = 1ns/1ps
-                  timescale of worklib.line_buffer:v = 1ns/1ps
-                  timescale of worklib.hysteresis_logic:v = 1ns/1ps
-                  timescale of worklib.hysteresis_datapath:v = 1ns/1ps
-                  timescale of worklib.half_adder:v = 1ns/1ps
-                  timescale of worklib.gradient_decision_tree:v = 1ns/1ps
-                  timescale of worklib.gradient_datapath:v = 1ns/1ps
-                  timescale of worklib.gauss_uc:v = 1ns/1ps
-                  timescale of worklib.gauss_smoothing_datapath:v = 1ns/1ps
-                  timescale of worklib.full_adder:v = 1ns/1ps
-                  timescale of worklib.double_threshold:v = 1ns/1ps
-                  timescale of worklib.csa_16bit:v = 1ns/1ps
-                  timescale of worklib.config_table:v = 1ns/1ps
-                  timescale of worklib.cla_adder:v = 1ns/1ps
-                  timescale of worklib.cla_4bit:v = 1ns/1ps
-                  timescale of worklib.canny_top_module:v = 1ns/1ps
-                  timescale of worklib.abs_value:v = NOTSET
-  xmelab: *F,CUMSTS: Timescale directive missing on one or more modules.
-  xrun: *E,ELBERR: Error (*E) or soft error (*SE) occurred during elaboration (status 2), exiting.
-  TOOL:   xrun(64)        25.03-s010: Exiting on Jul 04, 2026 at 16:07:11 -03  (total: 00:00:00)
-  [cidigital@localhost adaptive-canny-fpga]$ 
-
 Para abrir o SimVision (GUI de formas de onda):
 
   xrun -incdir src/Canny_top -access +rwc -gui -f filelist.f
-
-  [cidigital@localhost adaptive-canny-fpga]$ xrun -incdir src/Canny_top -access +rwc -gui -f filelist.f 
-  TOOL:   xrun    25.03-s010: Started on Jul 04, 2026 at 16:07:56 -03
-  TOOL:   xrun(64)        25.03-s010: Started on Jul 04, 2026 at 16:07:56 -03
-  xrun(64): 25.03-s010: (c) Copyright 1995-2026 Cadence Design Systems, Inc.
-  Recompiling... reason: file './src/Canny_top/canny_top_module.v' is newer than expected.
-          expected: Sat Jul  4 15:01:20 2026
-          actual:   Sat Jul  4 15:57:21 2026
-  file: src/multiplier/gauss_uc.v
-  module gauss_uc (
-                |
-  xmvlog: *W,RECOME (src/multiplier/gauss_uc.v,3|14): recompiling design unit worklib.gauss_uc:v.
-          First compiled from line 3 of src/multiplier/gauss_uc.v.
-                  Caching library 'worklib' ....... Done
-          Elaborating the design hierarchy:
-          Top level design units:
-                  nms_window_buffer
-                  tb_canny_top_module
-          Modules w/wo timescales:
-                  timescale of worklib.wallace_8x8_unsigned:v = 1ns/1ps
-                  timescale of worklib.tb_canny_top_module:v = 1ns/1ps
-                  timescale of worklib.sobel_filter:v = 1ns/1ps
-                  timescale of worklib.sliding_window_fsm:v = 1ns/1ps
-                  timescale of worklib.sliding_window_7x7_flex:v = 1ns/1ps
-                  timescale of worklib.sliding_window_3x3:v = 1ns/1ps
-                  timescale of worklib.rgb_gray_average:v = 1ns/1ps
-                  timescale of worklib.noise_estimator_uc:v = 1ns/1ps
-                  timescale of worklib.noise_estimator:v = 1ns/1ps
-                  timescale of worklib.nms_window_buffer:v = 1ns/1ps
-                  timescale of worklib.nms_combinational:v = 1ns/1ps
-                  timescale of worklib.mag_approx:v = 1ns/1ps
-                  timescale of worklib.line_buffer:v = 1ns/1ps
-                  timescale of worklib.hysteresis_logic:v = 1ns/1ps
-                  timescale of worklib.hysteresis_datapath:v = 1ns/1ps
-                  timescale of worklib.half_adder:v = 1ns/1ps
-                  timescale of worklib.gradient_decision_tree:v = 1ns/1ps
-                  timescale of worklib.gradient_datapath:v = 1ns/1ps
-                  timescale of worklib.gauss_uc:v = 1ns/1ps
-                  timescale of worklib.gauss_smoothing_datapath:v = 1ns/1ps
-                  timescale of worklib.full_adder:v = 1ns/1ps
-                  timescale of worklib.double_threshold:v = 1ns/1ps
-                  timescale of worklib.csa_16bit:v = 1ns/1ps
-                  timescale of worklib.config_table:v = 1ns/1ps
-                  timescale of worklib.cla_adder:v = 1ns/1ps
-                  timescale of worklib.cla_4bit:v = 1ns/1ps
-                  timescale of worklib.canny_top_module:v = 1ns/1ps
-                  timescale of worklib.abs_value:v = NOTSET
-  xmelab: *F,CUMSTS: Timescale directive missing on one or more modules.
-  xrun: *E,ELBERR: Error (*E) or soft error (*SE) occurred during elaboration (status 2), exiting.
-  TOOL:   xrun(64)        25.03-s010: Exiting on Jul 04, 2026 at 16:07:57 -03  (total: 00:00:01)
-  [cidigital@localhost adaptive-canny-fpga]$ 
 
 A flag -incdir src/Canny_top é necessária porque a testbench usa
 `include "image_params.vh"`, que fica nessa pasta.
