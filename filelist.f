@@ -23,4 +23,6 @@ src/window/nms_window_buffer.v
 //src/window/tb_line_buffer.v
 //src/window/tb_window_3x3.v
 //src/window/tb_window_7x7_flex.v
-src/window/tb_nms_buffer.v
+//src/window/tb_nms_buffer.v
+src/NMS/nms_combinational.v
+src/NMS/tb_nms_combinational.v
