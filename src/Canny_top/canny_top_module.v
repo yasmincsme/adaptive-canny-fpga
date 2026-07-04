@@ -101,13 +101,22 @@ module canny_top_module #(
     wire [7:0] g_w00, g_w01, g_w02, g_w10, g_w11, g_w12, g_w20, g_w21, g_w22;
     wire       g_win_vld;
 
+    // gauss_done e gauss_pixel_out são atualizados na mesma borda de clock: gauss_done
+    // sinaliza "válido" no mesmo ciclo em que pixel_suavizado ainda contém o valor da
+    // rodada anterior. Atrasamos o valid em 1 ciclo para alinhar com o dado já escrito.
+    reg gauss_done_d;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) gauss_done_d <= 1'b0;
+        else        gauss_done_d <= gauss_done;
+    end
+
     sliding_window_3x3 #(
         .WIDTH(IMG_WIDTH),
         .DATA_WIDTH(DATA_WIDTH)
     ) inst_win_grad (
         .clk(clk),
         .rst_n(rst_n),
-        .pixel_vld(gauss_done),
+        .pixel_vld(gauss_done_d),
         .pixel_in(gauss_pixel_out),
         
         .win00(g_w00), .win01(g_w01), .win02(g_w02),

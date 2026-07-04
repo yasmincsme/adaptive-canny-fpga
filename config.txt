@@ -1,0 +1,2 @@
+xrun -f filelist.f
+xrun -access +rwc -gui -f filelist.f
