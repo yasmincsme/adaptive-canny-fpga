@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module gradient_decision_tree #(
     parameter WIDTH = 11 // Largura dos gradientes acumulados (ex: 11 bits)
 )(

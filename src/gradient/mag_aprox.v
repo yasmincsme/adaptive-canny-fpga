@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module mag_approx #(
     parameter WIDTH = 12 // Largura de dados ajustada para o datapath
 )(

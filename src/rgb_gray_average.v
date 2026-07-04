@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 /*
 |   rgb_gray_average.v
 |   Implementação direta da conversão de imagens

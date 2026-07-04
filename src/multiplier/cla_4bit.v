@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 // Bloco CLA Genuíno de 4 bits (Sem Ripple Carry)
 module cla_4bit (
     input  wire [3:0] a,

@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 
 // Somador CLA de 16 bits
 module cla_adder (

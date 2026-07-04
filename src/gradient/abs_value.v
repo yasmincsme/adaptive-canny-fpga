@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 module abs_value #(parameter WIDTH = 11) (
     input  signed [WIDTH-1:0] num_in,
     output        [WIDTH-1:0] abs_num_out
