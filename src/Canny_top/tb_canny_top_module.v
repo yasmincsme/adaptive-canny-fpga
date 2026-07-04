@@ -172,12 +172,14 @@ module tb_canny_top_module;
         pixel_g_in = 0;
         pixel_b_in = 0;
         pixel_vld_in = 0;
-        adaptive_en = 1'b0; // Mantém o comportamento original: limiares manuais
-        mdp = 2'd0;
+        // Usa a tabela de parâmetros pré-calculada (config_table) em vez de
+        // limiares manuais: HIGH_THRESH/LOW_THRESH abaixo só valem se
+        // adaptive_en for desligado.
+        adaptive_en = 1'b1;
+        mdp = 2'd3; // 94% -- ponto de operação mais conservador da tabela
         noise_threshold = 8'd30;
 
-        // Limiares levemente relaxados para garantir visibilidade da borda 
-        // caso o Gaussiano crie um gradiente muito suave
+        // Só usados quando adaptive_en=1'b0.
         high_thresh = 12'd1;
         low_thresh  = 12'd1;
         

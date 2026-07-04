@@ -3,7 +3,17 @@
 module canny_top_module #(
     parameter IMG_WIDTH   = 512,
     parameter DATA_WIDTH  = 8,
-    parameter MAG_WIDTH   = 12
+    parameter MAG_WIDTH   = 12,
+    // Escala usada para converter os limiares fracionários Q0.16 da tabela
+    // de configuração (config_table) para o domínio de magnitude de
+    // MAG_WIDTH bits: thresh_bits = round(th_qfrac * GRAD_MAG_FULL_SCALE).
+    // Calibrado empiricamente contra fotos reais nesta implementação (Sobel
+    // sobre diferenças de píxeis de 8 bits + aproximação diagonal em
+    // mag_approx.v): a magnitude resultante para gradientes fotográficos
+    // típicos fica na casa de poucas centenas, bem abaixo do valor teórico
+    // de fundo de escala 2^MAG_WIDTH-1. Se o datapath de gradiente mudar,
+    // recalibre este valor.
+    parameter GRAD_MAG_FULL_SCALE = 256
 )(
     input  wire                 clk,
     input  wire                 rst_n,
@@ -150,11 +160,9 @@ module canny_top_module #(
     );
 
     // Conversão dos limiares de fração Q0.16 para o domínio de MAG_WIDTH bits
-    // usado pela magnitude do gradiente: thresh_bits = round(th_qfrac * MAX_MAG).
-    localparam [MAG_WIDTH-1:0] MAX_MAG = {MAG_WIDTH{1'b1}};
-
-    wire [15+MAG_WIDTH:0] prod_high = cfg_th_high * MAX_MAG;
-    wire [15+MAG_WIDTH:0] prod_low  = cfg_th_low  * MAX_MAG;
+    // usado pela magnitude do gradiente (ver GRAD_MAG_FULL_SCALE acima).
+    wire [15+MAG_WIDTH:0] prod_high = cfg_th_high * GRAD_MAG_FULL_SCALE;
+    wire [15+MAG_WIDTH:0] prod_low  = cfg_th_low  * GRAD_MAG_FULL_SCALE;
 
     wire [MAG_WIDTH-1:0] adaptive_high_thresh = prod_high[15+MAG_WIDTH:16];
     wire [MAG_WIDTH-1:0] adaptive_low_thresh  = prod_low[15+MAG_WIDTH:16];
