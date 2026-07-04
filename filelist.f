@@ -27,13 +27,14 @@ src/Canny_top/canny_top_module.v
 //
 //src/NMS/tb_nms_combinational.v
 //src/window/tb_line_buffer.v
-src/window/tb_window_3x3.v
+//src/window/tb_window_3x3.v
 //src/window/tb_window_7x7_flex.v
 //src/window/tb_nms_buffer.v
 //src/gradient/tb_gradient_datapath.v
 //src/multiplier/tb_wallace.v
 //src/multiplier/tb_image_filter.v
 //src/thresholding/tb_double_threshold.v
-//src/thresholding/tb_hysteresis_logic.v/
+//src/thresholding/tb_hysteresis_logic.v
 //src/thresholding/tb_hysteresis_datapath.v
 //src/Canny_top/tb_canny_top_module.v
+src/multiplier/tb_gaussian_system.v
