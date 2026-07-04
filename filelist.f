@@ -18,6 +18,9 @@ src/window/sliding_window_7x7_flex.v
 src/window/sliding_window_fsm.v
 src/window/nms_window_buffer.v
 src/NMS/nms_combinational.v
+src/thresholding/double_threshold.v
+src/thresholding/hysteresis_logic.v
+src/thresholding/hysteresis_datapath.v
 //src/NMS/tb_nms_combinational.v
 //src/window/tb_line_buffer.v
 //src/window/tb_window_3x3.v
@@ -25,4 +28,7 @@ src/NMS/nms_combinational.v
 //src/window/tb_nms_buffer.v
 //src/gradient/tb_gradient_datapath.v
 //src/multiplier/tb_wallace.v
-src/multiplier/tb_image_filter.v
+//src/multiplier/tb_image_filter.v
+//src/thresholding/tb_double_threshold.v
+//src/thresholding/tb_hysteresis_logic.v
+src/thresholding/tb_hysteresis_datapath.v
