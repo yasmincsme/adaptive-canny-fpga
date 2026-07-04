@@ -18,7 +18,13 @@ module canny_top_module #(
     input  wire [MAG_WIDTH-1:0]  LOW_THRESH,
     input  wire [7:0]            gauss_peso,
     output wire [5:0]            gauss_addr,
-    
+
+    // Selecção Adaptativa de Parâmetros (APS)
+    input  wire                  adaptive_en,   // 0 = limiares manuais (HIGH/LOW_THRESH), 1 = tabela adaptativa
+    input  wire [1:0]            mdp,           // Ponto de operação desejado: 0=91%,1=92%,2=93%,3=94%
+    input  wire [7:0]            noise_threshold, // Limiar de corrupção de píxel para o noise_estimator
+    output wire [1:0]            kernel_sel_out,  // Selecção do kernel Gaussiano (para a ROM externa de pesos)
+
     // Interface de Saída
     output wire [7:0]            final_pixel_out,
     output wire                  final_vld_out
@@ -93,6 +99,56 @@ module canny_top_module #(
         .contador_out(gauss_addr),
         .pixel_suavizado(gauss_pixel_out)
     );
+
+    // =========================================================================
+    // 2.1 SELEÇÃO ADAPTATIVA DE PARÂMETROS (APS)
+    // =========================================================================
+    // O estimador de ruído roda em paralelo ao Gauss sobre a mesma janela 7x7,
+    // disparado pelo mesmo pulso de início (a janela fica congelada durante
+    // STATE_PROCESS, então ambos os datapaths podem consumi-la simultaneamente).
+    wire [3:0] noise_level;
+    wire       noise_done;
+
+    noise_estimator inst_noise_estimator (
+        .clk(clk),
+        .rst_n(rst_n),
+        .start(start_gauss),
+        .window_flat(window_7x7_flat),
+        .threshold(noise_threshold),
+        .noise_level(noise_level),
+        .done(noise_done)
+    );
+
+    // A tabela é uma ROM síncrona: o endereço {noise_level, mdp} só muda quando
+    // noise_level é reescrito (uma vez por rodada), então th_high/th_low ficam
+    // estáveis bem antes de serem consumidos pela histerese, várias dezenas de
+    // ciclos depois.
+    wire [1:0]  cfg_kernel_sel;
+    wire [15:0] cfg_th_high, cfg_th_low; // Q0.16
+
+    config_table inst_config_table (
+        .clk(clk),
+        .noise_level(noise_level),
+        .mdp(mdp),
+        .kernel_sel(cfg_kernel_sel),
+        .th_high(cfg_th_high),
+        .th_low(cfg_th_low)
+    );
+
+    // Conversão dos limiares de fração Q0.16 para o domínio de MAG_WIDTH bits
+    // usado pela magnitude do gradiente: thresh_bits = round(th_qfrac * MAX_MAG).
+    localparam [MAG_WIDTH-1:0] MAX_MAG = {MAG_WIDTH{1'b1}};
+
+    wire [15+MAG_WIDTH:0] prod_high = cfg_th_high * MAX_MAG;
+    wire [15+MAG_WIDTH:0] prod_low  = cfg_th_low  * MAX_MAG;
+
+    wire [MAG_WIDTH-1:0] adaptive_high_thresh = prod_high[15+MAG_WIDTH:16];
+    wire [MAG_WIDTH-1:0] adaptive_low_thresh  = prod_low[15+MAG_WIDTH:16];
+
+    wire [MAG_WIDTH-1:0] final_high_thresh = adaptive_en ? adaptive_high_thresh : HIGH_THRESH;
+    wire [MAG_WIDTH-1:0] final_low_thresh  = adaptive_en ? adaptive_low_thresh  : LOW_THRESH;
+
+    assign kernel_sel_out = adaptive_en ? cfg_kernel_sel : 2'b00;
 
     // =========================================================================
     // 3. ETAPA 2: GRADIENTE (SOBEL)
@@ -196,8 +252,8 @@ module canny_top_module #(
         .rst_n(rst_n),
         .nms_mag_in(nms_mag),
         .nms_vld_in(nms_vld),
-        .HIGH_THRESH(HIGH_THRESH),
-        .LOW_THRESH(LOW_THRESH),
+        .HIGH_THRESH(final_high_thresh),
+        .LOW_THRESH(final_low_thresh),
         
         .final_pixel_out(final_pixel_out),
         .final_vld_out(final_vld_out)

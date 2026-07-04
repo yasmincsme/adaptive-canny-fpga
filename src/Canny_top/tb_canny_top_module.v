@@ -28,7 +28,14 @@ module tb_canny_top_module;
     reg  [MAG_WIDTH-1:0]  low_thresh;
     wire [7:0]            gauss_peso;
     wire [5:0]            gauss_addr;
-    
+
+    // Seleção Adaptativa de Parâmetros (APS) — desligada nesta testbench para
+    // preservar o comportamento original com limiares manuais.
+    reg                   adaptive_en;
+    reg  [1:0]            mdp;
+    reg  [7:0]            noise_threshold;
+    wire [1:0]            kernel_sel_out;
+
     wire [7:0]            final_pixel_out;
     wire                  final_vld_out;
 
@@ -49,6 +56,10 @@ module tb_canny_top_module;
         .LOW_THRESH(low_thresh),
         .gauss_peso(gauss_peso),
         .gauss_addr(gauss_addr),
+        .adaptive_en(adaptive_en),
+        .mdp(mdp),
+        .noise_threshold(noise_threshold),
+        .kernel_sel_out(kernel_sel_out),
         .final_pixel_out(final_pixel_out),
         .final_vld_out(final_vld_out)
     );
@@ -163,7 +174,10 @@ module tb_canny_top_module;
         rst_n = 0;
         pixel_in = 0;
         pixel_vld_in = 0;
-        
+        adaptive_en = 1'b0; // Mantém o comportamento original: limiares manuais
+        mdp = 2'd0;
+        noise_threshold = 8'd30;
+
         // Limiares levemente relaxados para garantir visibilidade da borda 
         // caso o Gaussiano crie um gradiente muito suave
         high_thresh = 12'd1;

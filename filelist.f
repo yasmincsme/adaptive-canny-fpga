@@ -21,6 +21,9 @@ src/NMS/nms_combinational.v
 src/thresholding/double_threshold.v
 src/thresholding/hysteresis_logic.v
 src/thresholding/hysteresis_datapath.v
+src/noise_estimator/noise_estimator_uc.v
+src/noise_estimator/noise_estimator.v
+src/config_table/config_table.v
 src/Canny_top/canny_top_module.v
 //
 //    TESTBENCHS
