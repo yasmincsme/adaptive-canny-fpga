@@ -12,7 +12,9 @@ module tb_config_table;
 
     integer error_count;
 
-    config_table dut (
+    config_table #(
+        .MEM_FILE("config_table.mem")
+    ) dut (
         .clk         (clk),
         .noise_level (noise_level),
         .mdp         (mdp),

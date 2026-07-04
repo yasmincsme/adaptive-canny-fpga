@@ -17,7 +17,13 @@
 //   [31:16] th_high     — TH_H em ponto fixo Q0.16
 //   [15:0]  th_low      — TH_L em ponto fixo Q0.16
 
-module config_table (
+module config_table #(
+    // Caminho para o .mem, relativo ao directório onde o simulador é invocado.
+    // Por omissão, assume invocação a partir da raiz do projecto (ex: `xrun -f
+    // filelist.f`). A testbench standalone (tb_config_table.v), invocada de
+    // dentro de src/config_table/, sobrepõe este parâmetro para "config_table.mem".
+    parameter MEM_FILE = "src/config_table/config_table.mem"
+)(
     input  wire        clk,
     input  wire [3:0]  noise_level,   // Do noise_estimator (0–13)
     input  wire [1:0]  mdp,           // Nível MDP (0=91%, 1=92%, 2=93%, 3=94%)
@@ -33,7 +39,7 @@ module config_table (
     reg [33:0] rom [0:55];
 
     initial begin
-        $readmemh("config_table.mem", rom);
+        $readmemh(MEM_FILE, rom);
     end
 
     // ========================================================================
