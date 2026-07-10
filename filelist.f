@@ -25,6 +25,17 @@ src/noise_estimator/noise_estimator_uc.v
 src/noise_estimator/noise_estimator.v
 src/config_table/config_table.v
 src/rgb_gray_average.v
+src/pre_process/dual_port_ram.v
+src/pre_process/rgb2gray.v
+src/pre_process/system_rgb2gray_top.v
+src/spi/spi_clk_gen.v
+src/spi/spi_slave_controller.v
+src/spi/spi_slave_datapath.v
+src/spi/spi_slave_sync.v
+src/spi/spi_slave.v
+src/spi/tb_spi_slave_datapath.v
+src/spi/tb_spi_slave_sync.v
+src/spi/tb_spi_slave.v
 src/Canny_top/canny_top_module.v
 //
 //    TESTBENCHS
