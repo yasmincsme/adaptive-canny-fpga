@@ -9,7 +9,6 @@ src/multiplier/csa_16bit.v
 src/multiplier/full_adder.v
 src/multiplier/gauss_smoothing_datapath.v
 src/multiplier/gauss_uc.v
-src/multiplier/gauss_uc.v
 src/multiplier/half_adder.v
 src/multiplier/wallace_8x8_unsigned.v
 src/window/line_buffer.v
@@ -51,5 +50,5 @@ src/Canny_top/canny_top_module.v
 //src/thresholding/tb_double_threshold.v
 //src/thresholding/tb_hysteresis_logic.v/
 //src/thresholding/tb_hysteresis_datapath.v
-src\pre_process\tb_system_rgb2gray.v
+src/pre_process/tb_system_rgb2gray.v
 //src/Canny_top/tb_canny_top_module.v
