@@ -32,8 +32,9 @@ from pathlib import Path
 import cv2
 
 REPO_ROOT = Path(__file__).parent.parent
-DEFAULT_HEX_PATH = REPO_ROOT / "entrada_canny.hex"
-DEFAULT_VH_PATH = REPO_ROOT / "src" / "Canny_top" / "image_params.vh"
+BUILD_DIR = REPO_ROOT / "build"
+DEFAULT_HEX_PATH = BUILD_DIR / "entrada_canny.hex"
+DEFAULT_VH_PATH = BUILD_DIR / "image_params.vh"
 DEFAULT_SIZE = 512
 
 

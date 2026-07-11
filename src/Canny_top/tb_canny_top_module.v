@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
-// Dimensões da imagem de entrada (IMG_WIDTH/IMG_HEIGHT), geradas por
-// scripts/png_to_hex.py a partir de uma imagem real. Se este arquivo não
+// Dimensões da imagem de entrada (IMG_WIDTH/IMG_HEIGHT), geradas em
+// build/image_params.vh por scripts/png_to_hex.py a partir de uma imagem
+// real. Compile com -I build (ver config.txt). Se este arquivo não
 // existir, rode o script primeiro (ele mantém um valor padrão 32x32 até lá).
 `include "image_params.vh"
 
@@ -80,48 +81,49 @@ module tb_canny_top_module;
     );
 
     // =========================================================================
-    // SIMULAÇÃO DA ROM DE PESOS (Kernel 3x3 centralizado em 7x7)
-    // Apenas a região central [2:4][2:4] contém valores, o resto é zero.
+    // SIMULAÇÃO DA ROM DE PESOS -- KERNEL GAUSSIANO REAL 7x7 (sigma=1.3)
     // =========================================================================
+    // ATENÇÃO: até esta correção, esta ROM era um passa-direto de 1 peso só
+    // (identity, sem suavização real) -- funcionava sem chamar atenção em
+    // imagens sintéticas/recortes suaves, mas em fotos reais com textura fina
+    // (cabelo, penas, treliça de fundo) o Sobel via ruído de alta frequência
+    // sem filtragem nenhuma, produzindo uma borda muito mais "suja" do que um
+    // Canny de referência com blur real no mesmo limiar.
+    //
+    // Kernel calculado com sigma=1.3 (mesmo valor que a tabela adaptativa
+    // seleciona via kernel_sel=2 para noise_level=0), normalizado para somar
+    // 255 (peso/256 == fração Q0.8 usada pelo MAC do gauss_smoothing_datapath):
     reg [7:0] rom_pesos [0:63];
     integer r;
     initial begin
-        // Zera todos os endereços para garantir que o "padding" de zeros funcione
         for (r = 0; r < 64; r = r + 1) begin
-            rom_pesos[r] = 8'd0; 
+            rom_pesos[r] = 8'd0;
         end
-        /*
-        // O kernel 3x3 padrão (Soma = 16) centralizado na grade 7x7
-        // Linha 0-1: 0 (zeros, como esperado)
-        
-        // Linha 2 (Índices 14 a 20)
-        rom_pesos[16] = 1; rom_pesos[17] = 2; rom_pesos[18] = 1;
-        
-        // Linha 3 (Índices 21 a 27)
-        rom_pesos[23] = 2; rom_pesos[24] = 4; rom_pesos[25] = 2;
-        
-        // Linha 4 (Índices 28 a 34)
-        rom_pesos[30] = 1; rom_pesos[31] = 2; rom_pesos[32] = 1;
-        
-        // Linhas 5-6: 0 (zeros)
-        */
-        rom_pesos[24] = 8'd255;
+        rom_pesos[0]=0;  rom_pesos[1]=1;  rom_pesos[2]=1;  rom_pesos[3]=2;  rom_pesos[4]=1;  rom_pesos[5]=1;  rom_pesos[6]=0;
+        rom_pesos[7]=1;  rom_pesos[8]=2;  rom_pesos[9]=6;  rom_pesos[10]=7; rom_pesos[11]=6; rom_pesos[12]=2; rom_pesos[13]=1;
+        rom_pesos[14]=1; rom_pesos[15]=6; rom_pesos[16]=13;rom_pesos[17]=18;rom_pesos[18]=13;rom_pesos[19]=6; rom_pesos[20]=1;
+        rom_pesos[21]=2; rom_pesos[22]=7; rom_pesos[23]=18;rom_pesos[24]=23;rom_pesos[25]=18;rom_pesos[26]=7; rom_pesos[27]=2;
+        rom_pesos[28]=1; rom_pesos[29]=6; rom_pesos[30]=13;rom_pesos[31]=18;rom_pesos[32]=13;rom_pesos[33]=6; rom_pesos[34]=1;
+        rom_pesos[35]=1; rom_pesos[36]=2; rom_pesos[37]=6; rom_pesos[38]=7; rom_pesos[39]=6; rom_pesos[40]=2; rom_pesos[41]=1;
+        rom_pesos[42]=0; rom_pesos[43]=1; rom_pesos[44]=1; rom_pesos[45]=2; rom_pesos[46]=1; rom_pesos[47]=1; rom_pesos[48]=0;
     end
-    
+
     assign gauss_peso = rom_pesos[gauss_addr];
 
     // =========================================================================
-    // CARGA DA IMAGEM DE ENTRADA (entrada_canny.hex)
+    // CARGA DA IMAGEM DE ENTRADA (build/entrada_canny.hex)
     // =========================================================================
     // Gerado por scripts/png_to_hex.py a partir de uma imagem real (PNG colorido),
     // ou o quadrado sintético 512x512 padrão se o script ainda não foi executado.
     // Cada linha do .hex é um pixel RGB de 24 bits: {R[7:0], G[7:0], B[7:0]}.
     // A conversão para escala de cinza acontece dentro do datapath (rgb_gray_average).
+    // Caminho relativo ao diretório de onde a simulação é invocada (raiz do
+    // projeto -- ver config.txt).
     reg [23:0] image_in [0:(IMG_WIDTH*IMG_HEIGHT)-1];
 
     initial begin
-        $readmemh("entrada_canny.hex", image_in);
-        $display("Imagem 'entrada_canny.hex' carregada (%0dx%0d, RGB).", IMG_WIDTH, IMG_HEIGHT);
+        $readmemh("build/entrada_canny.hex", image_in);
+        $display("Imagem 'build/entrada_canny.hex' carregada (%0dx%0d, RGB).", IMG_WIDTH, IMG_HEIGHT);
     end
 
     // Geração de Clock
@@ -134,12 +136,12 @@ module tb_canny_top_module;
     integer valid_count = 0;
 
     initial begin
-        file_out = $fopen("saida_canny.hex", "w");
+        file_out = $fopen("build/saida_canny.hex", "w");
         if (!file_out) begin
-            $display("ERRO: Nao foi possivel criar o arquivo saida_canny.hex");
+            $display("ERRO: Nao foi possivel criar o arquivo build/saida_canny.hex");
             $finish;
         end
-        $display("Arquivo 'saida_canny.hex' aberto para gravacao.");
+        $display("Arquivo 'build/saida_canny.hex' aberto para gravacao.");
         $display("=========================================================");
         $display("Renderizacao Visual (Apenas os pixeis centrais validos):");
     end
@@ -177,7 +179,14 @@ module tb_canny_top_module;
         // adaptive_en for desligado.
         adaptive_en = 1'b1;
         mdp = 2'd3; // 94% -- ponto de operação mais conservador da tabela
-        noise_threshold = 8'd30;
+        // 30 era sensivel demais: textura real de foto (cabelo, penas, treliça
+        // de fundo) era confundida com ruido, fazendo noise_level oscilar
+        // janela a janela e o limiar ficar inconsistente pela imagem (validado
+        // com um histograma de noise_level ao longo da lena.png completa: com
+        // 30, ~6% das janelas relatavam noise_level>0 mesmo sem ruido real;
+        // com 60, 100% ficam em noise_level=0, inclusive no trecho mais
+        // texturizado da imagem -- a pena do chapeu).
+        noise_threshold = 8'd60;
 
         // Só usados quando adaptive_en=1'b0.
         high_thresh = 12'd1;
@@ -233,7 +242,7 @@ module tb_canny_top_module;
         $display("=========================================================");
         $display("Simulacao Concluida com Sucesso!");
         $display("Pixeis validos exportados: %0d", valid_count);
-        $display("Arquivo gerado: saida_canny.hex");
+        $display("Arquivo gerado: build/saida_canny.hex");
         $finish;
     end
 

@@ -1,7 +1,20 @@
 /venv
-onda_wallace.vcd
+
+# Artefatos de simulacao gerados (hex/png de entrada-saida, binarios
+# compilados, cabecalhos gerados) -- regeneraveis via scripts/*.py e
+# iverilog/xrun. Ver build/README.md.
+/build/*
+!/build/.gitkeep
+
+# Binarios de simulacao e formas de onda (podem ser gerados por qualquer
+# testbench do projeto, em qualquer diretorio de trabalho)
+*.vvp
+*.vcd
+simv
 sim_wallace.out
 run_sim.sh
+
+# Artefatos do Cadence Xcelium/SimVision
 /.simvision
 /waves_flex.shm
 /waves.shm
@@ -15,12 +28,6 @@ xrun.log
 sim_export.history
 sim_export.log
 .symbolnamelist
-.gitignore
 .symbolportinfomap
-simvision24664.diag
-waves_window.shm/waves_window.trn
-.gitignore
-waves_window.shm/waves_window.dsn
-.gitignore
-waves_window.shm/waves_window-1.trn
-imagem_out.hex
+simvision*.diag
+waves_window.shm/

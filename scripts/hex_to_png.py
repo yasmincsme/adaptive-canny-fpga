@@ -25,9 +25,10 @@ import cv2
 import numpy as np
 
 REPO_ROOT = Path(__file__).parent.parent
-DEFAULT_HEX_PATH = REPO_ROOT / "saida_canny.hex"
-DEFAULT_VH_PATH = REPO_ROOT / "src" / "Canny_top" / "image_params.vh"
-DEFAULT_OUT_PATH = REPO_ROOT / "saida_canny.png"
+BUILD_DIR = REPO_ROOT / "build"
+DEFAULT_HEX_PATH = BUILD_DIR / "saida_canny.hex"
+DEFAULT_VH_PATH = BUILD_DIR / "image_params.vh"
+DEFAULT_OUT_PATH = BUILD_DIR / "saida_canny.png"
 
 WIDTH_LOSS = 6   # 3 janelas 3x3 em cascata (Sobel, NMS, Histerese) descartam 2 colunas/linha cada
 HEIGHT_LOSS = 5  # Preenchimento inicial do pipeline (dominado pela janela 7x7 do Gauss)
