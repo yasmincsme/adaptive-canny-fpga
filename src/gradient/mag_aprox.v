@@ -8,7 +8,6 @@ module mag_approx #(
 );
 
     // Árvore combinacional explícita de Shift-Add para * 0.7071
-    // A palavra-chave 'assign' liga a entrada à saída instantaneamente através das portas lógicas
     assign diag_out = (sum_in >> 1) + 
                       (sum_in >> 3) + 
                       (sum_in >> 4) + 

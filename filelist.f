@@ -51,4 +51,5 @@ src/Canny_top/canny_top_module.v
 //src/thresholding/tb_double_threshold.v
 //src/thresholding/tb_hysteresis_logic.v/
 //src/thresholding/tb_hysteresis_datapath.v
-src/Canny_top/tb_canny_top_module.v
+src\pre_process\tb_system_rgb2gray.v
+//src/Canny_top/tb_canny_top_module.v

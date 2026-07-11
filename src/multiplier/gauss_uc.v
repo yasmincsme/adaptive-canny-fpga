@@ -1,5 +1,4 @@
 `timescale 1ns / 1ps
-
 module gauss_uc (
     input  wire clk,
     input  wire rst_n,          // Reset assíncrono (ativo em baixo)
