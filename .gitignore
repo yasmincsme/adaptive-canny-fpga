@@ -31,3 +31,16 @@ sim_export.log
 .symbolportinfomap
 simvision*.diag
 waves_window.shm/
+
+# Artefatos de sintese do Genus (regeneraveis via synth/scripts/run_synth.tcl)
+/synth/reports/*
+!/synth/reports/.gitkeep
+/synth/outputs/*
+!/synth/outputs/.gitkeep
+/synth/logs/*
+!/synth/logs/.gitkeep
+*.cmd
+genus.log
+genus.cmd
+.genus_history
+fv/

@@ -129,11 +129,15 @@ module tb_canny_top_module;
     // Geração de Clock
     always #5 clk = ~clk;
 
+    // Contador de ciclos — exibido ao fim da simulação para projeção de desempenho
+    always @(posedge clk) cycle_count = cycle_count + 1;
+
     // =========================================================================
     // EXPORTAÇÃO PARA ARQUIVO .HEX E MONITOR VISUAL
     // =========================================================================
     integer file_out;
     integer valid_count = 0;
+    integer cycle_count = 0;
 
     initial begin
         file_out = $fopen("build/saida_canny.hex", "w");
@@ -188,9 +192,21 @@ module tb_canny_top_module;
         // texturizado da imagem -- a pena do chapeu).
         noise_threshold = 8'd60;
 
-        // Só usados quando adaptive_en=1'b0.
-        high_thresh = 12'd1;
-        low_thresh  = 12'd1;
+        // Defaults para modo fixo (só valem quando adaptive_en=1'b0).
+        high_thresh = 12'd64;
+        low_thresh  = 12'd26;
+
+        // Sobrescritas por linha de comando via +arg — para os scripts de avaliação:
+        //   vvp sim.vvp +ADAPTIVE_EN=0 +HIGH_THRESH=64 +LOW_THRESH=26
+        //   vvp sim.vvp +ADAPTIVE_EN=1 +MDP=3 +NOISE_THRESH=60
+        begin : _plusargs
+            integer _t;
+            if ($value$plusargs("ADAPTIVE_EN=%d",  _t)) adaptive_en     = _t[0];
+            if ($value$plusargs("MDP=%d",          _t)) mdp             = _t[1:0];
+            if ($value$plusargs("HIGH_THRESH=%d",  _t)) high_thresh     = _t[11:0];
+            if ($value$plusargs("LOW_THRESH=%d",   _t)) low_thresh      = _t[11:0];
+            if ($value$plusargs("NOISE_THRESH=%d", _t)) noise_threshold = _t[7:0];
+        end
         
         #20 rst_n = 1; 
         
@@ -243,6 +259,7 @@ module tb_canny_top_module;
         $display("Simulacao Concluida com Sucesso!");
         $display("Pixeis validos exportados: %0d", valid_count);
         $display("Arquivo gerado: build/saida_canny.hex");
+        $display("CICLOS_TOTAIS:%0d", cycle_count);
         $finish;
     end
 

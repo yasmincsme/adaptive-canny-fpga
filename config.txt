@@ -61,3 +61,44 @@ A simulação grava build/saida_canny.hex (um píxel de borda por linha,
 Gera build/saida_canny.png (por padrão), lendo as dimensões de saída a
 partir de build/image_params.vh (já ajustadas pela perda de borda do
 pipeline: -6 de largura, -5 de altura).
+
+## Síntese com Genus (Cadence)
+
+Scripts em synth/scripts/, ainda não executados neste ambiente -- faltam
+duas coisas antes de rodar de verdade:
+
+1. **Biblioteca de células padrão (.lib)**: ainda não escolhemos uma
+   PDK para o projeto. Preencha LIB_DIR e TARGET_LIBS em
+   synth/scripts/setup.tcl antes de tentar sintetizar -- o script aborta
+   com um erro claro se esquecer.
+2. **Conferir a sintaxe Genus** em run_synth.tcl contra a versão
+   instalada (foi escrito com base na sintaxe típica de
+   read_hdl/elaborate/syn_generic/syn_map/syn_opt + redirect para
+   relatórios, mas não foi testado neste ambiente).
+
+Depois de preencher setup.tcl, a partir de synth/scripts/:
+
+  genus -legacy_ui -files run_synth.tcl -log ../logs/run_synth
+
+O que os scripts fazem:
+
+- filelist_synth.f (raiz do repo): mesma lista de filelist_canny_top.f,
+  mas sem a testbench -- é o que run_synth.tcl lê.
+- synth/scripts/setup.tcl: caminhos da biblioteca de células + diretórios
+  de saída (synth/outputs/, synth/reports/).
+- synth/scripts/constraints.sdc: clock de 10 ns (100 MHz) como ponto de
+  partida neutro, reset assíncrono como false path, I/O delays em 40% do
+  período. Ajuste depois de ver o report_timing.rpt -- não precisa
+  acertar de primeira. Como referência de ordem de grandeza (não uma meta
+  a bater): o artigo Kalbasi & Nikmehr (IEEE Access 2020) reporta 263 MHz
+  num Virtex-V e 355 MHz num Virtex-7 para o design deles.
+- synth/scripts/run_synth.tcl: lê o RTL, elabora canny_top_module, aplica
+  as constraints, roda syn_generic/syn_map/syn_opt, e escreve relatórios
+  (área, timing, potência, gates) em synth/reports/ e netlist/SDC/db em
+  synth/outputs/.
+
+Ponto de atenção já sinalizado no script: config_table.v carrega
+config_table.mem via $readmemh numa ROM (`reg [33:0] rom [0:55]`) --
+confirme no log de elaboração que o Genus está sintetizando isso como
+lógica combinacional (mux tree), não pedindo um macro de memória que não
+temos.

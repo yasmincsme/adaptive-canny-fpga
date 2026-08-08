@@ -61,7 +61,7 @@ module noise_estimator (
     wire [5:0] right_idx   = center_idx + 6'd1;
 
     // ========================================================================
-    // 4. SELECÇÃO DOS PÍXEIS (MUX inferido pelo sintetizador)
+    // 4. SELECÇÃO DOS PÍXELS (MUX inferido pelo sintetizador)
     // ========================================================================
     wire [7:0] pixel_center = window_array[center_idx];
     wire [7:0] pixel_top    = window_array[top_idx];

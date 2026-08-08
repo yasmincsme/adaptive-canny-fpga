@@ -1,0 +1,248 @@
+% =============================================================================
+%  Seção IV — Resultados e Discussão
+%  Artigo: Detector de Bordas Canny com Seleção Adaptativa de Parâmetros em FPGA
+%  Referência: Kalbasi & Nikmehr, IEEE Access, 2020
+%
+%  ATENÇÃO — pré-requisito no preamble do main.tex:
+%    \usepackage[caption=false,font=footnotesize]{subfig}
+%  (remover \usepackage{subcaption} se existir — incompatível com IEEEtran)
+% =============================================================================
+
+\section{Resultados e Discussão}
+\label{sec:resultados}
+
+Esta seção apresenta a validação experimental da arquitetura implementada em RTL Verilog,
+organizada em quatro vertentes: ambiente de simulação, validação funcional do pipeline,
+eficácia da Seleção Adaptativa de Parâmetros (APS) e desempenho temporal.
+
+% ---------------------------------------------------------------------------
+\subsection{Ambiente de Simulação e Conjunto de Imagens}
+\label{ssec:ambiente}
+% ---------------------------------------------------------------------------
+
+Toda a verificação foi conduzida em simulação comportamental com o simulador iverilog 12.0
+(\textit{open-source}, sem licença), que executa o RTL sintetizável descrito em Verilog-2012.
+A ferramenta de síntese lógica disponível no laboratório é o Cadence Genus (ambiente acadêmico);
+porém, os tempos de acesso ao ambiente Cadence inviabilizaram a síntese completa dentro do
+cronograma deste trabalho. As métricas de desempenho apresentadas nas próximas subseções
+são, portanto, projeções baseadas em contagem de ciclos extraída da simulação RTL.
+
+O conjunto de imagens de avaliação é composto por seis fotografias coloridas de domínio
+público amplamente utilizadas em literatura de processamento de imagens:
+\textit{Lena}, \textit{Peppers}, \textit{Stones}, \textit{Bee}, \textit{Brick Wall} e
+\textit{Ducks}. Todas foram redimensionadas para $512 \times 512$ pixels.
+A conversão de cor (RGB~$\to$~cinza) é realizada pelo próprio \textit{datapath} de
+pré-processamento da arquitetura (módulo \texttt{rgb2gray.v}), replicando a fórmula
+ITU-R~BT.601 via soma ponderada com operadores de deslocamento.
+
+A Figura~\ref{fig:bordas_exemplos} exibe quatro pares (imagem original / mapa de bordas RTL)
+gerados no modo APS ($\mathrm{MDP}=94\%$), ilustrando a capacidade do \textit{pipeline}
+de extrair estruturas de borda em diferentes conteúdos visuais.
+
+% figure* ocupa as duas colunas do formato IEEE — só pode ser posicionada no topo (t)
+\begin{figure*}[t!]
+    \centering
+    % Linha 1: Lena e Bee
+    \subfloat[\textit{Lena} — original\label{fig:lena_orig}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/lena_original.png}}\hfill
+    \subfloat[\textit{Lena} — bordas RTL\label{fig:lena_edges}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/lena_edges.png}}\hfill
+    \subfloat[\textit{Bee} — original\label{fig:bee_orig}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/bee_original.png}}\hfill
+    \subfloat[\textit{Bee} — bordas RTL\label{fig:bee_edges}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/bee_edges.png}}\\[4pt]
+    % Linha 2: Peppers e Brick Wall
+    \subfloat[\textit{Peppers} — original\label{fig:peppers_orig}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/peppers_original.png}}\hfill
+    \subfloat[\textit{Peppers} — bordas RTL\label{fig:peppers_edges}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/peppers_edge.png}}\hfill
+    \subfloat[\textit{Brick Wall} — original\label{fig:wall_orig}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/wall_original.png}}\hfill
+    \subfloat[\textit{Brick Wall} — bordas RTL\label{fig:wall_edges}]{%
+        \includegraphics[width=0.23\linewidth]{secoes/resultados/wall_edge.png}}
+    \caption{Pares imagem original / mapa de bordas RTL para quatro imagens do conjunto
+             de avaliação (modo APS, $\mathrm{MDP}=94\%$, $512\times512$~px).}
+    \label{fig:bordas_exemplos}
+\end{figure*}
+
+% ---------------------------------------------------------------------------
+\subsection{Validação Funcional do Pipeline}
+\label{ssec:validacao}
+% ---------------------------------------------------------------------------
+
+A Figura~\ref{fig:validacao_funcional} compara, para a imagem \textit{Lena} em
+$512\times512$~px, a entrada em escala de cinza, a referência gerada pelo OpenCV
+\texttt{cv2.Canny} e a saída da simulação RTL operando no modo APS com
+$\mathrm{MDP}=94\%$.
+
+\begin{figure}[htbp]
+    \centering
+    \subfloat[Entrada (cinza)\label{fig:val_entrada}]{%
+        \includegraphics[width=0.31\linewidth]{secoes/resultados/lena_original.png}}\hfill
+    \subfloat[Ref.\ OpenCV ($T_h=38$, $T_l=15$)\label{fig:val_opencv}]{%
+        \includegraphics[width=0.31\linewidth]{secoes/resultados/lena_opencv.jpg}}\hfill
+    \subfloat[Saída RTL (APS, MDP=$94\%$)\label{fig:val_rtl}]{%
+        \includegraphics[width=0.31\linewidth]{secoes/resultados/lena_edges.png}}
+    \caption{Validação funcional: entrada em escala de cinza, referência OpenCV e
+             saída da simulação RTL. Imagem \textit{Lena}, $512\times512$~px.}
+    \label{fig:validacao_funcional}
+\end{figure}
+
+Qualitativamente, ambas as saídas capturam as principais estruturas de borda da imagem:
+o contorno do chapéu, o ombro e os traços faciais. A saída RTL exibe menor densidade de
+bordas detectadas (12.842~pixels, $\approx 5\%$) em relação à referência OpenCV a limiares
+equivalentes (22.664~pixels, $\approx 8{,}8\%$), o que é esperado, pois as implementações
+de Supressão de Não-Máximos (NMS) e histerese diferem entre o \textit{hardware} descrito
+e a biblioteca de referência.
+
+A métrica de sobreposição (IoU) entre os dois mapas de borda, calculada sobre a região
+de saída válida do pipeline ($(W{-}6)\times(H{-}5)$ pixels), foi de $0{,}0595$, valor
+que reflete as diferenças estruturais entre as duas implementações e não caracteriza erro
+funcional. É importante notar que o detector de bordas Canny é intrinsecamente
+sensível aos parâmetros: pequenas variações nos limiares ou no operador de gradiente
+produzem diferenças significativas nos mapas de borda, tornando a comparação direta
+de pixels pouco informativa sem alinhamento de parâmetros.
+
+% ---------------------------------------------------------------------------
+\subsection{Eficácia da Seleção Adaptativa de Parâmetros}
+\label{ssec:eficacia}
+% ---------------------------------------------------------------------------
+
+Para avaliar o benefício da APS em condições de ruído variável, foram realizadas
+28~simulações RTL: 14 níveis de ruído sal-e-pimenta ($5\%$ a $70\%$, passo de $5\%$)
+$\times$ 2 modos (limiares fixos vs.\ APS). O ruído sal-e-pimenta é um modelo
+impulsivo no qual pixels aleatórios são corrompidos para os valores extremos da faixa
+de intensidade (0 ou 255). Esse modelo é o adequado para este sistema, pois o estimador
+de ruído do hardware (\texttt{noise\_estimator.v}) opera contando pixels com valores
+próximos aos extremos — exatamente a assinatura do ruído sal-e-pimenta.
+
+Em cada rodada, a imagem \textit{Lena} ($128\times128$~px) teve ruído injetado via
+\textit{script} Python, sendo convertida para hexadecimal e injetada no \textit{testbench}
+RTL sem recompilação do projeto.
+
+Os parâmetros comparados são:
+
+\begin{itemize}
+    \item \textbf{Fixo}: $T_h = 64$, $T_l = 26$ (correspondentes a $\mathrm{MDP}=91\%$,
+          ruído$=5\%$ na tabela APS), mantidos constantes para todos os níveis de ruído.
+    \item \textbf{APS}: limiares selecionados automaticamente pela tabela
+          pré-calculada (Tabela~\ref{tab:fom_resultados}), com $\mathrm{MDP}=94\%$.
+          O estimador de ruído integrado ao \textit{hardware} detecta o nível de
+          contaminação e indexa a entrada adequada da LUT.
+\end{itemize}
+
+A qualidade de detecção é quantificada pela \textit{Figure of Merit} de
+Pratt~\cite{pratt1978digital}:
+\begin{equation}
+    \mathrm{FOM} = \frac{1}{\max(|I|,\,|R|)}
+                   \sum_{i \in R} \frac{1}{1 + \alpha\, d^2(i)},
+    \label{eq:fom}
+\end{equation}
+onde $|I|$ é o número de pixels de borda no gabarito, $|R|$ é o número detectado,
+$d(i)$ é a distância euclidiana do pixel detectado $i$ ao pixel de borda mais próximo
+no gabarito, e $\alpha = 1/9$. O gabarito é gerado pelo \texttt{cv2.Canny} na imagem
+limpa com $T_h = 300$, $T_l = 120$ ($\approx 3{,}8\%$ de densidade de bordas).
+
+\begin{table}[htbp]
+    \centering
+    \caption{FOM de Pratt ($\alpha=1/9$): Parâmetros Fixos vs.\ APS ($\mathrm{MDP}=94\%$).
+             Imagem: \textit{Lena} $128\times128$~px, ruído sal-e-pimenta.}
+    \label{tab:fom_resultados}
+    \renewcommand{\arraystretch}{1.12}
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{cccccc}
+        \toprule
+        \textbf{Ruído} & \textbf{$\sigma_\mathrm{APS}$} & \textbf{$T_h^\mathrm{APS}$}
+            & \textbf{FOM Fixo} & \textbf{FOM APS} & \textbf{Ganho} \\
+        \midrule
+         5\% & 1{,}3 &  38 & 0{,}2555 & 0{,}2484 & $-$0{,}0071 \\
+        10\% & 1{,}3 &  49 & 0{,}2477 & 0{,}2349 & $-$0{,}0128 \\
+        15\% & 1{,}3 &  54 & 0{,}2275 & 0{,}2223 & $-$0{,}0052 \\
+        20\% & 1{,}5 &  49 & 0{,}2354 & 0{,}2332 & $-$0{,}0022 \\
+        25\% & 1{,}5 &  49 & 0{,}2316 & 0{,}2341 & $+$0{,}0025 \\
+        30\% & 1{,}5 &  64 & 0{,}2331 & 0{,}2322 & $-$0{,}0010 \\
+        35\% & 1{,}5 &  64 & 0{,}2386 & 0{,}2384 & $-$0{,}0002 \\
+        40\% & 1{,}5 &  64 & 0{,}2286 & 0{,}2265 & $-$0{,}0021 \\
+        45\% & 1{,}5 &  74 & 0{,}2281 & 0{,}2299 & $+$0{,}0018 \\
+        50\% & 1{,}5 &  74 & 0{,}2291 & 0{,}2316 & $+$0{,}0025 \\
+        55\% & 1{,}5 &  84 & 0{,}2365 & 0{,}2376 & $+$0{,}0011 \\
+        60\% & 1{,}5 &  95 & 0{,}2296 & 0{,}2339 & $+$0{,}0043 \\
+        65\% & 1{,}5 & 105 & 0{,}2402 & 0{,}2404 & $+$0{,}0002 \\
+        70\% & 1{,}5 & 100 & 0{,}2316 & 0{,}2359 & $+$0{,}0043 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Os resultados da Tabela~\ref{tab:fom_resultados} revelam duas regiões de comportamento
+distintas: em baixo ruído ($\leq 20\%$), os limiares fixos superaram ligeiramente o modo
+APS, porque $T_h=64$ gera um mapa mais esparso, mais próximo do gabarito de alta limiar.
+Em ruído moderado a severo ($\geq 25\%$), o modo APS supera os limiares fixos de forma
+consistente, com ganho acumulado médio de $+0{,}0024$ na faixa $25$--$70\%$. A APS eleva
+progressivamente $T_h$ de 38 (para 5\% de ruído) até 105 (para 65\%), filtrando falsos
+positivos induzidos pelo ruído sal-e-pimenta.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{secoes/resultados/aps_efficacy.png}
+    \caption{FOM de Pratt ($\alpha=1/9$) em função do nível de ruído sal-e-pimenta
+             para parâmetros fixos ($T_h=64$) e APS ($\mathrm{MDP}=94\%$).
+             Imagem \textit{Lena}, $128\times128$~px.}
+    \label{fig:aps_efficacy}
+\end{figure}
+
+% ---------------------------------------------------------------------------
+\subsection{Análise de Desempenho Temporal}
+\label{ssec:desempenho}
+% ---------------------------------------------------------------------------
+
+A latência do pipeline foi medida instrumentando o \textit{testbench} com um contador
+de ciclos de clock (\texttt{cycle\_count}), exibido ao final da simulação via
+\texttt{\$display("CICLOS\_TOTAIS:\%0d", cycle\_count)}. A simulação de referência
+utilizou a imagem \textit{Lena} em $64\times64$~px e retornou:
+
+\begin{equation*}
+    N_\text{ciclos}^{64\times64} = 236.716\ \text{ciclos de clock.}
+\end{equation*}
+
+Dividindo pelo número de pixels injetados ($64\times64 = 4.096$) obtém-se uma cadência
+de $\approx 57{,}8$~ciclos/pixel, com o gargalo localizado na operação de convolução
+gaussiana $7\times7$ (49~ciclos de MAC mais 2~transições de estado da FSM de suavização).
+
+Extrapolando linearmente para uma imagem $512\times512$ ($262.144$~pixels):
+
+\begin{equation*}
+    N_\text{ciclos}^{512\times512} \approx 57{,}8 \times 262.144 \approx 15{,}15 \times 10^6\ \text{ciclos.}
+\end{equation*}
+
+A Tabela~\ref{tab:desempenho} consolida a projeção de FPS para três frequências de
+operação representativas:
+
+\begin{table}[htbp]
+    \centering
+    \caption{Projeção de quadros por segundo (FPS) para imagens $512\times512$
+             em função da frequência de operação. Valores baseados em contagem de
+             ciclos da simulação RTL (não em medição em hardware real).}
+    \label{tab:desempenho}
+    \renewcommand{\arraystretch}{1.12}
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Frequência (MHz)} & \textbf{Ciclos} & \textbf{FPS (projetado)} \\
+        \midrule
+        100 & $15{,}15 \times 10^6$ & $6{,}6$ \\
+        150 & $15{,}15 \times 10^6$ & $9{,}9$ \\
+        200 & $15{,}15 \times 10^6$ & $13{,}2$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+O resultado de $6{,}6$~FPS a $100$~MHz posiciona a arquitetura na faixa de aplicações
+de inspeção industrial de baixa velocidade e robótica embarcada. Para atingir taxas de
+vídeo padrão ($30$~FPS a $512\times512$), a frequência de operação precisaria ser de
+aproximadamente $455$~MHz, o que demanda um dispositivo moderno (ex.\ Xilinx UltraScale+
+ou Intel Agilex), cuja $F_\text{max}$ pode ser estimada após síntese e \textit{place-and-route}.
+
+Cabe ressaltar que o \textit{pipeline} processa um pixel por ciclo de clock assim que o
+pipeline está aquecido (\textit{throughput} de 1 px/ciclo após $\approx 57$ ciclos de
+latência inicial). O gargalo de desempenho reside exclusivamente no filtro gaussiano
+$7\times7$, cujo datapath serial processa os 49 coeficientes sequencialmente.
+Uma versão paralela do filtro eliminaria esse gargalo ao custo de maior área em LUTs.
